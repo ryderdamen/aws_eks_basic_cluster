@@ -1,4 +1,5 @@
-# IAM role and attachments for the cluster's control plane
+
+# IAM role and attachments for the cluster's contorl plane
 resource "aws_iam_role" "cluster_control_plane_role" {
   name                  = "${var.cluster_name}-control-plane-role"
   description           = "Allows ${var.cluster_name} cluster control plane to manage EC2, Fargate, and Logs"
@@ -46,4 +47,28 @@ resource "aws_iam_role_policy_attachment" "default_node_pod_networking_policy" {
 resource "aws_iam_role_policy_attachment" "default_node_container_read_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.default_node_group.name
+}
+
+
+# Fargate role, policies, and attachments
+resource "aws_iam_role" "default_fargate_pod_execution_role" {
+  name                  = "${var.cluster_name}-default-fargate-role"
+  description           = "Default fargate role for ${var.cluster_name}"
+  force_detach_policies = true
+  assume_role_policy    = file("${path.module}/policies/default_fargate_role.json")
+}
+
+resource "aws_iam_role_policy_attachment" "default_fargate_pod_execution_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy"
+  role       = aws_iam_role.default_fargate_pod_execution_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "default_fargate_cluster_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.default_fargate_pod_execution_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "default_fargate_vpc_resource_controller" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
+  role       = aws_iam_role.default_fargate_pod_execution_role.name
 }
