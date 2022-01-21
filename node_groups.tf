@@ -6,12 +6,12 @@ resource "aws_eks_node_group" "default_ondemand" {
   subnet_ids      = var.public_subnet_ids
 
   scaling_config {
-    desired_size = 1
+    desired_size = 3
     max_size     = 3
     min_size     = 1
   }
 
-  instance_types = ["t2.micro"]
+  instance_types = ["t2.small"]
   disk_size = 20
   capacity_type = "ON_DEMAND"
 
@@ -40,7 +40,7 @@ resource "aws_eks_node_group" "default_spot" {
     min_size     = 3
   }
 
-  instance_types = ["t2.micro"]
+  instance_types = ["t2.small"]
   disk_size = 20
   capacity_type = "SPOT"
 
